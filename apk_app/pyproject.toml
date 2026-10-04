@@ -1,0 +1,33 @@
+[project]
+name = "codeai-receptionist"
+version = "1.1.0"
+description = "CodeAI Malayalam receptionist — EN/ML input, Malayalam speech output"
+requires-python = ">=3.10"
+dependencies = [
+    "flet>=0.25.0",
+    "flet-audio>=0.25.0",
+    "flet-audio-recorder>=0.25.0",
+    "google-genai>=1.0.0",
+    "gtts>=2.5.0",
+    "edge-tts>=6.1.0",
+    "SpeechRecognition>=3.10.0",
+]
+
+[tool.flet]
+product = "CodeAIReceptionist"
+org = "com.college.codeai"
+company = "College Reception"
+copyright = "Copyright (c) 2026"
+build_number = 2
+
+[tool.flet.app]
+path = "."
+module = "main"
+
+[tool.flet.android]
+bundle_id = "com.college.codeai.app"
+
+[tool.flet.android.permission]
+"android.permission.INTERNET" = true
+"android.permission.RECORD_AUDIO" = true
+"android.permission.MODIFY_AUDIO_SETTINGS" = true

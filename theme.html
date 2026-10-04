@@ -1,0 +1,347 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1.0">
+<title>TALKBOT AI Receptionist</title>
+<style>
+*{box-sizing:border-box;margin:0;padding:0}body{font-family:Arial,sans-serif;background:#050505;color:#fff}.page{display:none;min-height:100vh;padding:30px;background:radial-gradient(circle at 90% 0,#211705,#090909 40%,#030303 80%)}.page.active{display:block}.wrap{width:min(1200px,94%);margin:auto}.header{display:flex;align-items:center;justify-content:space-between;gap:20px;margin-bottom:40px}.brand{display:flex;align-items:center;gap:12px}.logo,.bot{width:62px;height:62px;border:2px solid #ffc83d;border-radius:50%;display:grid;place-items:center;color:#ffc83d;font-size:28px;box-shadow:0 0 22px #ffc83d33}.brand h2{font-size:25px}.brand span{color:#ffc83d;font-size:11px;letter-spacing:1px}.back,.smallbtn{border:1px solid #ffc83d88;background:#ffc83d12;color:#ffc83d;padding:10px 18px;border-radius:10px;cursor:pointer}.back:hover{background:#ffc83d;color:#000}.card{background:#0d0d0d;border:1px solid #ffc83d66;border-radius:20px}.login{min-height:100vh;display:grid;grid-template-columns:1fr 1fr;gap:40px;align-items:center;max-width:1200px;margin:auto}.welcome{padding:20px}.welcome h1{font-size:64px;color:#ffc83d;margin:25px 0}.welcome p{max-width:480px;color:#bbb;font-size:18px;line-height:1.6}.feature{display:flex;gap:12px;align-items:center;margin:18px 0}.fi{width:45px;height:45px;border:1px solid #ffc83d;border-radius:50%;display:grid;place-items:center;color:#ffc83d}.feature b{color:#ffc83d;display:block}.feature small{color:#777}.loginbox{padding:35px;max-width:520px;margin:auto}.loginbox h2,.center h1{color:#ffc83d}.loginbox h2{text-align:center;margin:18px 0 8px}.loginbox>p{text-align:center;color:#888;margin-bottom:25px}label{display:block;color:#ffc83d;margin:0 0 7px;font-weight:bold}input{width:100%;height:50px;background:#000;border:1px solid #ffc83d55;color:#fff;border-radius:10px;padding:0 14px;margin-bottom:17px;outline:none}.phone{display:flex;align-items:center;background:#000;border:1px solid #ffc83d55;border-radius:10px;margin-bottom:17px}.phone span{padding-left:14px}.phone input{border:0;margin:0}.primary{width:100%;height:52px;background:#ffc83d;border:0;border-radius:10px;font-weight:700;cursor:pointer}.textbtn{width:100%;background:none;border:0;color:#ffc83d;padding:12px;cursor:pointer}.hidden{display:none}.title{font-size:58px;margin:25px 0 10px}.muted{color:#999}.grid2{display:grid;grid-template-columns:1fr 1fr;gap:25px;margin-top:40px}.choice{min-height:270px;padding:30px;display:grid;place-items:center;text-align:center;cursor:pointer}.choice .big{font-size:55px}.choice h2{color:#ffc83d;margin:15px}.choice span{color:#ffc83d}.center{text-align:center;margin:55px 0}.helpgrid,.collegegrid,.admingrid{display:grid;grid-template-columns:repeat(3,1fr);gap:20px}.helpgrid{grid-template-columns:1fr 1fr}.tile{min-height:250px;padding:30px;display:grid;place-items:center;text-align:center;cursor:pointer}.tile .icon{font-size:48px}.tile h2,.tile h3{color:#ffc83d;margin:15px}.tile p,.tile small{color:#888;line-height:1.5}.chatpreview{display:flex;align-items:center;gap:18px;padding:22px;margin-top:25px}.grow{flex:1}.info{display:flex;flex-direction:column;gap:14px}.item{padding:22px}.item h3{color:#ffc83d;margin-bottom:8px}.item small{color:#777}.item p{color:#ccc;line-height:1.5;margin-top:8px}.chatpanel{height:calc(100vh - 150px);display:flex;flex-direction:column;padding:22px}.chathead{display:flex;align-items:center;gap:14px}.chathead h2{color:#ffc83d}.chathead p{color:#777}.messages{flex:1;overflow:auto;padding:20px 0}.msg{max-width:70%;padding:13px 15px;border-radius:14px;margin-bottom:12px;line-height:1.5}.user{background:#ffc83d;color:#000;margin-left:auto}.botmsg{background:#000;border:1px solid #ffc83d55}.inputrow{display:flex;gap:10px}.mic,.send{width:55px;height:50px;border-radius:10px;cursor:pointer}.mic{background:#000;color:#ffc83d;border:1px solid #ffc83d55}.mic.on{color:red;border-color:red}.send{background:#ffc83d;border:0}.admincard{min-height:180px;padding:25px;text-align:center}.admincard .icon{font-size:45px}.admincard h3{color:#ffc83d;margin:14px}.admincard p{color:#888}@media(max-width:850px){.login{grid-template-columns:1fr}.collegegrid,.admingrid{grid-template-columns:1fr 1fr}}@media(max-width:600px){.grid2,.helpgrid,.collegegrid,.admingrid{grid-template-columns:1fr}.title{font-size:42px}}
+
+/* =========================================================
+   GLOBAL VOICE CONTROLS - ALL PAGES
+========================================================= */
+.voice-toolbar{
+  position:fixed;
+  right:24px;
+  bottom:24px;
+  z-index:9999;
+  display:flex;
+  gap:10px;
+  padding:10px;
+  background:rgba(13,13,13,.92);
+  border:1px solid rgba(255,200,61,.45);
+  border-radius:16px;
+  box-shadow:0 12px 35px rgba(0,0,0,.45);
+  backdrop-filter:blur(10px);
+}
+.voice-toolbar button{
+  min-width:48px;
+  height:46px;
+  padding:0 14px;
+  border-radius:12px;
+  border:1px solid rgba(255,200,61,.45);
+  background:#000;
+  color:var(--gold);
+  font-weight:700;
+  transition:.2s;
+}
+.voice-toolbar button:hover{
+  background:var(--gold);
+  color:#000;
+  transform:translateY(-2px);
+}
+.voice-toolbar button.active{
+  background:var(--gold);
+  color:#000;
+}
+.voice-toolbar .voice-status{
+  display:flex;
+  align-items:center;
+  padding:0 8px;
+  color:rgba(255,255,255,.6);
+  font-size:12px;
+  white-space:nowrap;
+}
+@media(max-width:650px){
+  .voice-toolbar{
+    right:12px;
+    bottom:12px;
+    padding:8px;
+    gap:7px;
+  }
+  .voice-toolbar .voice-status{display:none}
+  .voice-toolbar button{min-width:44px;height:44px;padding:0 10px}
+}
+
+</style>
+<style>
+.admin-welcome{display:flex;justify-content:space-between;align-items:flex-end;gap:20px;margin:20px 0 25px}.admin-status{padding:10px 14px;border:1px solid rgba(255,200,61,.3);border-radius:12px;color:#56d364}
+.admin-stats{display:grid;grid-template-columns:repeat(4,1fr);gap:14px;margin-bottom:22px}.admin-stat{background:var(--panel);border:1px solid rgba(255,200,61,.3);border-radius:16px;padding:18px;color:var(--gold);font-size:24px}.admin-stat strong{margin-left:8px}.admin-stat small{display:block;color:rgba(255,255,255,.5);font-size:12px;margin-top:4px;margin-left:34px}
+.admin-tabs{display:flex;gap:8px;overflow:auto;padding:4px 0 14px}.admin-tab{flex:0 0 auto;background:#0a0a0a;border:1px solid rgba(255,200,61,.25);color:#fff;border-radius:10px;padding:10px 13px}.admin-tab.active,.admin-tab:hover{background:var(--gold);color:#000}.adm-section{background:rgba(13,13,13,.94);border:1px solid rgba(255,200,61,.28);border-radius:20px;padding:24px}.adm-head{display:flex;justify-content:space-between;gap:20px;align-items:flex-start;margin-bottom:20px}.adm-head h2{color:var(--gold)}.adm-head p{color:rgba(255,255,255,.55);margin-top:5px}.adm-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:14px;margin-top:20px}.adm-grid button{min-height:160px;text-align:left;padding:20px;border-radius:15px;border:1px solid rgba(255,200,61,.25);background:#080808;color:#fff}.adm-grid button:hover{border-color:var(--gold);transform:translateY(-3px)}.adm-grid b{display:block;color:var(--gold);margin:12px 0 6px}.adm-grid small{color:rgba(255,255,255,.5);line-height:1.4}.adm-note{margin-top:18px;padding:14px;background:rgba(255,200,61,.04);border-left:3px solid var(--gold);color:rgba(255,255,255,.65)}.adm-form{display:grid;grid-template-columns:repeat(2,1fr);gap:14px}.adm-form label{color:var(--gold)}.adm-form input,.adm-form textarea,.adm-form select,.adm-list input{width:100%;margin-top:7px;background:#000;color:#fff;border:1px solid rgba(255,200,61,.3);border-radius:10px;padding:12px;outline:none}.adm-form textarea{min-height:120px;resize:vertical}.full{grid-column:1/-1}.adm-list>div{background:#080808;border:1px solid rgba(255,200,61,.2);border-radius:14px;padding:15px;margin-bottom:12px}.adm-list b{display:block;color:var(--gold);margin-bottom:10px}.adm-preview{margin-top:20px;padding:18px;background:#080808;border:1px solid rgba(255,200,61,.2);border-radius:12px}.adm-preview p{color:rgba(255,255,255,.65);margin:6px 0}.admin-save{background:var(--gold);color:#000;border:0;border-radius:10px;padding:11px 16px;font-weight:700}.admin-reset{display:block;margin-top:15px;background:#2a0b0b;color:#ffb4b4;border:1px solid #6e2424;border-radius:10px;padding:11px 16px}.adm-row{background:#080808;border:1px solid rgba(255,200,61,.2);padding:16px;border-radius:14px;margin-bottom:12px}.adm-row h3{color:var(--gold);margin-bottom:12px}.adm-row button{margin-top:10px}.adm-table{width:100%;border-collapse:collapse;min-width:620px}.adm-table th,.adm-table td{text-align:left;padding:12px;border-bottom:1px solid rgba(255,255,255,.08)}.adm-table th{color:var(--gold)}.adm-table td{color:rgba(255,255,255,.7)}.check-row{display:flex;justify-content:space-between;align-items:center;padding:15px;background:#080808;border:1px solid rgba(255,200,61,.2);border-radius:12px;margin-bottom:12px}.check-row input{width:20px;height:20px;margin:0;accent-color:var(--gold)}
+@media(max-width:1050px){.adm-grid,.admin-stats{grid-template-columns:repeat(2,1fr)}}@media(max-width:700px){.admin-welcome,.adm-head{flex-direction:column;align-items:stretch}.adm-grid,.admin-stats,.adm-form{grid-template-columns:1fr}.full{grid-column:auto}}
+
+.activity-summary{display:grid;grid-template-columns:repeat(3,1fr);gap:14px;margin-bottom:18px}.activity-box{background:#080808;border:1px solid rgba(255,200,61,.25);border-radius:14px;padding:16px}.activity-box strong{display:block;color:var(--gold);font-size:22px}.activity-box small{color:rgba(255,255,255,.5)}.activity-filter{display:grid;grid-template-columns:1fr 1fr auto;gap:10px;margin-bottom:16px}.activity-filter input,.activity-filter select{margin:0;width:100%;background:#000;color:#fff;border:1px solid rgba(255,200,61,.3);border-radius:10px;padding:12px}.activity-log{max-height:520px;overflow:auto}.activity-empty{padding:30px;text-align:center;color:rgba(255,255,255,.5);border:1px dashed rgba(255,200,61,.25);border-radius:12px}.activity-log .adm-table{min-width:900px}.danger-btn{background:#2a0b0b!important;color:#ffb4b4!important;border:1px solid #6e2424!important}
+@media(max-width:700px){.activity-summary,.activity-filter{grid-template-columns:1fr}}
+</style></head>
+<body>
+
+<section id="login" class="page active"><div class="login"><div class="welcome"><div class="brand"><div class="logo">🤖</div><div><h2>TALKBOT</h2><span>AI RECEPTIONIST</span></div></div><div style="margin-top:60px"><div style="font-size:30px">Welcome to</div><h1>TALKBOT</h1><p>Your intelligent AI receptionist that connects, assists and simplifies every interaction.</p><div class="feature"><div class="fi">⚡</div><div><b>Instant Response</b><small>Get quick answers</small></div></div><div class="feature"><div class="fi">🔒</div><div><b>Secure & Private</b><small>Your data is protected</small></div></div><div class="feature"><div class="fi">◷</div><div><b>Always Available</b><small>24/7 AI Assistance</small></div></div><div class="feature"><div class="fi">💬</div><div><b>Smart & Friendly</b><small>Human-like interaction</small></div></div></div></div><div class="card loginbox"><div id="userBox"><div class="bot" style="margin:auto">🤖</div><h2>Login to your account</h2><p>Enter your details to continue</p><label>Full Name</label><input id="name"><label>Mobile Number</label><div class="phone"><span>+91</span><input id="mobile" type="tel"></div><button class="primary" onclick="sendOTP()">Send OTP</button><div id="otpBox" class="hidden"><label style="margin-top:18px">OTP</label><input id="otp" maxlength="6"><button class="primary" onclick="verifyOTP()">Verify & Login</button></div><button class="textbtn" onclick="adminForm()">👨‍💼 Admin Login</button></div><div id="adminBox" class="hidden"><div class="bot" style="margin:auto">👨‍💼</div><h2>Admin Login</h2><p>Access TALKBOT administration</p><label>Admin ID</label><input id="aid"><label>Password</label><input id="apass" type="password"><button class="primary" onclick="adminLogin()">Admin Login</button><button class="textbtn" onclick="userForm()">← Back to User Login</button></div></div></div></section>
+
+<section id="language" class="page"><div class="wrap"><div class="header"><button class="back" onclick="back()">← Back</button><div class="brand"><div class="logo">🤖</div><div><h2>Talkie</h2><span>AI ASSISTANT</span></div></div></div><div style="color:#ffc83d;letter-spacing:5px">WELCOME</div><h1 class="title">Choose Your<br>Language</h1><p class="muted">Select the language you are most comfortable communicating in.</p><div class="grid2"><div class="card choice" onclick="language('MALAYALAM')"><div class="big">🌐</div><h2>മലയാളം</h2><span>MALAYALAM</span><div class="arrow">→</div></div><div class="card choice" onclick="language('ENGLISH')"><div class="big">🌐</div><h2>English</h2><span>ENGLISH</span><div class="arrow">→</div></div></div></div></section>
+
+<section id="help" class="page"><div class="wrap"><div class="header"><button class="back" onclick="back()">← Back</button><div class="brand"><div class="logo">🤖</div><div><h2>TALKBOT</h2><span>AI RECEPTIONIST</span></div></div><b id="langLabel" style="color:#ffc83d"></b></div><div class="center"><h1 id="helpTitle">How can I help you?</h1><p id="helpSub" class="muted">Choose the type of assistance you need</p></div><div class="helpgrid"><div class="card tile" onclick="college()"><div class="icon">🎓</div><h2 id="collegeTitle">College Related</h2><p id="collegeDesc">Admission, courses, hostel, campus and other college information.</p><div class="arrow">→</div></div><div class="card tile" onclick="general()"><div class="icon">💬</div><h2 id="generalTitle">General</h2><p id="generalDesc">Ask TALKBOT about general topics.</p><div class="arrow">→</div></div></div></div></section>
+
+<section id="college" class="page"><div class="wrap"><div class="header"><button class="back" onclick="back()">← Back</button><div class="brand"><div class="logo">🤖</div><div><h2>TALKBOT</h2><span>AI RECEPTIONIST</span></div></div></div><div class="collegegrid"><div class="card tile" onclick="info('admission')"><div class="icon">📝</div><h3>Admission</h3><small>അഡ്മിഷൻ</small><div>→</div></div><div class="card tile" onclick="info('seat')"><div class="icon">💺</div><h3>Seat Availability</h3><small>സീറ്റ് ലഭ്യത</small><div>→</div></div><div class="card tile" onclick="info('courses')"><div class="icon">🎓</div><h3>Courses Available</h3><small>ലഭ്യമായ കോഴ്സുകൾ</small><div>→</div></div><div class="card tile" onclick="info('hostel')"><div class="icon">🛏️</div><h3>Hostel</h3><small>ഹോസ്റ്റൽ</small><div>→</div></div><div class="card tile" onclick="info('map')"><div class="icon">📍</div><h3>Campus Map</h3><small>ക്യാമ്പസ് മാപ്പ്</small><div>→</div></div><div class="card tile" onclick="info('other')"><div class="icon">▦</div><h3>Other</h3><small>മറ്റുള്ളവ</small><div>→</div></div></div><div class="card chatpreview"><div class="bot">🤖</div><div class="grow"><h2 id="collegeChatTitle">How can I help you today?</h2><p id="collegeChatDesc" class="muted">Type or speak your question</p></div><button class="smallbtn" onclick="collegeChat()">💬 Chat</button></div></div></section>
+
+<section id="info" class="page"><div class="wrap"><div class="header"><button class="back" onclick="back()">← Back</button><div class="brand"><div class="logo">🤖</div><div><h2 id="infoTitle">Information</h2><span>TALKBOT</span></div></div></div><div id="infoList" class="info"></div></div></section>
+
+<section id="chat" class="page"><div class="chat-wrap wrap"><div class="header"><div class="brand"><div class="logo">🤖</div><div><h2>TALKBOT</h2><span>AI RECEPTIONIST</span></div></div><button class="back" onclick="back()">← Back</button></div><div class="card chatpanel"><div class="chathead"><div class="bot">🤖</div><div><h2 id="chatTitle">How can I help you today?</h2><p id="chatType">General Assistance</p></div><div style="margin-left:auto"><button class="textbtn" onclick="stopVoice()">🔇</button></div></div><div id="messages" class="messages"><div id="empty" style="height:100%;display:grid;place-items:center;text-align:center"><div><div class="bot" style="width:100px;height:100px;font-size:45px;margin:auto">🤖</div><h2 id="emptyTitle" style="color:#ffc83d;margin-top:20px">How can I help you today?</h2><p id="emptyDesc" class="muted">Type your question or use the microphone.</p></div></div></div><div class="inputrow"><button id="mic" class="mic" onclick="voiceInput()">🎤</button><input id="message" placeholder="Type your message here..." onkeydown="if(event.key==='Enter')send()"><button class="send" onclick="send()">➤</button></div></div></div></section>
+
+<section id="admin" class="page"><div class="wrap">
+<div class="header"><button class="back" onclick="back()">← Back</button><div class="brand"><div class="logo">🤖</div><div><h2>TALKBOT</h2><span>ADMIN DASHBOARD</span></div></div><button class="back" onclick="logout()">Logout</button></div>
+<div class="admin-welcome"><div><div class="title-label" style="margin-top:0">ADMIN CONTROL CENTER</div><h1 style="font-size:44px">Welcome, Administrator</h1><p class="subtitle">View and edit the information used by TALKBOT.</p></div><div class="admin-status">● Admin Mode Active</div></div>
+<div class="admin-stats"><div class="admin-stat">📚 <strong id="courseCount">4</strong><small>Courses</small></div><div class="admin-stat">💺 <strong id="seatCount">4</strong><small>Departments</small></div><div class="admin-stat">🏠 <strong>4</strong><small>Hostel Records</small></div><div class="admin-stat">ℹ️ <strong>4</strong><small>Other Information</small></div></div>
+<div class="admin-tabs">
+<button class="admin-tab active" onclick="adminSection('overview',this)">Dashboard</button><button class="admin-tab" onclick="adminSection('college',this)">College Information</button><button class="admin-tab" onclick="adminSection('admission',this)">Admission</button><button class="admin-tab" onclick="adminSection('courses',this)">Courses</button><button class="admin-tab" onclick="adminSection('seats',this)">Seat Availability</button><button class="admin-tab" onclick="adminSection('hostel',this)">Hostel</button><button class="admin-tab" onclick="adminSection('other',this)">Other</button><button class="admin-tab" onclick="adminSection('chatbot',this)">Chatbot</button><button class="admin-tab" onclick="adminSection('users',this)">Users</button><button class="admin-tab" onclick="adminSection('activity',this)">Viewer Activity</button><button class="admin-tab" onclick="adminSection('settings',this)">Settings</button>
+</div>
+<div id="adm-overview" class="adm-section"><h2>Dashboard Overview</h2><p>Manage everything from one place.</p><div class="adm-grid">
+<button onclick="adminSection('college')">🏫<b>College Information</b><small>Edit college name, contact and location.</small></button>
+<button onclick="adminSection('admission')">📝<b>Admission</b><small>Edit eligibility, documents, steps and fees.</small></button>
+<button onclick="adminSection('courses')">🎓<b>Courses</b><small>Add, edit or delete courses.</small></button>
+<button onclick="adminSection('seats')">💺<b>Seat Availability</b><small>Update total and available seats.</small></button>
+<button onclick="adminSection('hostel')">🛏️<b>Hostel</b><small>Edit facilities, fees and rules.</small></button>
+<button onclick="adminSection('other')">📌<b>Other Information</b><small>Scholarships, transport, placements and contact.</small></button>
+<button onclick="adminSection('chatbot')">🤖<b>Chatbot</b><small>Edit welcome messages and voice settings.</small></button>
+<button onclick="adminSection('users')">👥<b>Users</b><small>View registered users.</small></button><button onclick="adminSection('activity')">👁️<b>Viewer Activity</b><small>See who viewed which college data, when and in which language.</small></button>
+</div><div class="adm-note">Demo edits are stored in this browser. Connect Firebase Firestore for a real shared admin system.</div></div>
+<div id="adm-college" class="adm-section hidden"><div class="adm-head"><div><h2>College Information</h2><p>Edit the main college details.</p></div><button class="admin-save" onclick="saveCollegeInfo()">Save Changes</button></div><div class="adm-form"><label>College Name<input id="aCollegeName" value="St. Mary's Polytechnic College"></label><label>Short Name<input id="aCollegeShort" value="SMPC"></label><label>Location<input id="aCollegeLocation" value="Palakkad, Kerala"></label><label>Phone<input id="aCollegePhone" value="+91 00000 00000"></label><label>Email<input id="aCollegeEmail" value=""></label><label>Website<input id="aCollegeWebsite" value="https://college.edu"></label><label class="full">Address<textarea id="aCollegeAddress">College Campus, Palakkad, Kerala</textarea></label><label class="full">About<textarea id="aCollegeAbout">Welcome to our polytechnic college.</textarea></label></div><div id="collegePreview" class="adm-preview"></div></div>
+<div id="adm-admission" class="adm-section hidden"><div class="adm-head"><div><h2>Admission Information</h2><p>Edit English and Malayalam admission content.</p></div><button class="admin-save" onclick="saveAdmissionInfo()">Save Changes</button></div><div class="adm-list">
+<div><b>Eligibility</b><input id="admEligEn" value="Pass the required qualifying examination for the selected programme."><input id="admEligMl" value="തിരഞ്ഞെടുത്ത പ്രോഗ്രാമിനുള്ള ആവശ്യമായ യോഗ്യതാ പരീക്ഷ വിജയിച്ചിരിക്കണം."></div>
+<div><b>Application Process</b><input id="admProcEn" value="Submit the application, required documents and complete the admission process."><input id="admProcMl" value="അപേക്ഷയും ആവശ്യമായ രേഖകളും സമർപ്പിച്ച് അഡ്മിഷൻ നടപടിക്രമം പൂർത്തിയാക്കുക."></div>
+<div><b>Required Documents</b><input id="admDocsEn" value="Mark list, transfer certificate, ID proof and required certificates."><input id="admDocsMl" value="മാർക്ക് ലിസ്റ്റ്, ട്രാൻസ്ഫർ സർട്ടിഫിക്കറ്റ്, ഐഡി പ്രൂഫ്, ആവശ്യമായ സർട്ടിഫിക്കറ്റുകൾ."></div>
+<div><b>Fee Information</b><input id="admFeeEn" value="Update official course and admission fee details here."><input id="admFeeMl" value="ഔദ്യോഗിക കോഴ്സ്, അഡ്മിഷൻ ഫീസ് വിവരങ്ങൾ ഇവിടെ അപ്ഡേറ്റ് ചെയ്യാം."></div></div></div>
+<div id="adm-courses" class="adm-section hidden"><div class="adm-head"><div><h2>Courses</h2><p>Add, edit or delete courses.</p></div><button class="admin-save" onclick="addCourseAdmin()">+ Add Course</button></div><div id="adminCoursesList"></div></div>
+<div id="adm-seats" class="adm-section hidden"><div class="adm-head"><div><h2>Seat Availability</h2><p>Update total and available seats.</p></div><button class="admin-save" onclick="saveSeatAdmin()">Save Seats</button></div><div id="adminSeatsList"></div></div>
+<div id="adm-hostel" class="adm-section hidden"><div class="adm-head"><div><h2>Hostel</h2><p>Edit hostel details.</p></div><button class="admin-save" onclick="saveHostelInfo()">Save Changes</button></div><div class="adm-form"><label>Boys Hostel<input id="hostelBoys" value="Boys Hostel"></label><label>Girls Hostel<input id="hostelGirls" value="Girls Hostel"></label><label>Hostel Fee<input id="hostelFeeAdmin" value="Update official fee"></label><label>Warden Phone<input id="wardenPhoneAdmin" value="+91 00000 00000"></label><label class="full">Facilities<textarea id="hostelFacilitiesAdmin">Rooms, study area, dining facility and common area.</textarea></label><label class="full">Rules<textarea id="hostelRulesAdmin">Update official hostel timings and student rules.</textarea></label></div></div>
+<div id="adm-other" class="adm-section hidden"><div class="adm-head"><div><h2>Other Information</h2><p>Edit scholarships, transport, placements and contact.</p></div><button class="admin-save" onclick="saveOtherInfo()">Save Changes</button></div><div class="adm-form"><label>Scholarships<textarea id="otherScholarshipsAdmin">Update scholarship information here.</textarea></label><label>Transportation<textarea id="otherTransportAdmin">Update college bus and transportation information here.</textarea></label><label>Placements<textarea id="otherPlacementsAdmin">Update placement and career information here.</textarea></label><label>Contact<textarea id="otherContactAdmin">Update office phone, email and working hours.</textarea></label></div></div>
+<div id="adm-chatbot" class="adm-section hidden"><div class="adm-head"><div><h2>Chatbot Settings</h2><p>Edit voice and chatbot behaviour.</p></div><button class="admin-save" onclick="saveBotSettings()">Save Changes</button></div><div class="adm-form"><label>English Welcome<textarea id="botWelcomeEn">How can I help you today?</textarea></label><label>Malayalam Welcome<textarea id="botWelcomeMl">എങ്ങനെ സഹായിക്കാം?</textarea></label><label>English Voice<select id="botVoiceEn"><option>en-IN</option><option>en-US</option></select></label><label>Malayalam Voice<select id="botVoiceMl"><option>ml-IN</option></select></label><label>Speech Rate<input id="botRate" type="number" min="0.5" max="1.5" step="0.1" value="0.9"></label><label>Reply Mode<select id="botReplyMode"><option>College + General</option><option>College Only</option><option>General Only</option></select></label></div></div>
+<div id="adm-users" class="adm-section hidden"><div class="adm-head"><div><h2>Users</h2><p>View registered users.</p></div></div><div style="overflow:auto"><table class="adm-table"><thead><tr><th>Name</th><th>Mobile</th><th>Language</th><th>Last Access</th></tr></thead><tbody id="adminUsersList"></tbody></table></div></div>
+<div id="adm-activity" class="adm-section hidden"><div class="adm-head"><div><h2>Viewer Activity</h2><p>Track which logged-in viewer opened which college information.</p></div><button class="admin-reset danger-btn" style="display:inline-block;margin:0" onclick="clearViewerLogs()">Clear Logs</button></div><div class="activity-summary"><div class="activity-box"><strong id="activityTotal">0</strong><small>Total data views</small></div><div class="activity-box"><strong id="activityUnique">0</strong><small>Unique viewers</small></div><div class="activity-box"><strong id="activityLatest">-</strong><small>Latest data checked</small></div></div><div class="activity-filter"><input id="activitySearch" placeholder="Search viewer or data..." oninput="renderViewerActivity()"><select id="activityDataFilter" onchange="renderViewerActivity()"><option value="">All data</option><option>Admission</option><option>Seat Availability</option><option>Courses Available</option><option>Hostel</option><option>Campus Map</option><option>Other Information</option></select><button class="admin-save" onclick="exportViewerLogs()">Export CSV</button></div><div id="viewerActivityList" class="activity-log"></div></div>
+<div id="adm-settings" class="adm-section hidden"><div class="adm-head"><div><h2>Settings</h2><p>Manage site-wide voice settings for this demo.</p></div></div><label class="check-row"><span>Enable Voice Input</span><input id="enableVoiceInput" type="checkbox" checked></label><label class="check-row"><span>Enable Voice Output</span><input id="enableVoiceOutput" type="checkbox" checked></label><button class="admin-save" onclick="saveSiteSettings()">Save Settings</button><button class="admin-reset" onclick="resetAdminData()">Reset Demo Data</button></div>
+</div></section>
+
+<script>
+let current='login', lang='ENGLISH', type='general', history=['login'], rec=null, listening=false;
+const $=id=>document.getElementById(id);
+function show(id,push=true){if(push&&current!==id)history.push(id);document.querySelectorAll('.page').forEach(p=>p.classList.remove('active'));$(id).classList.add('active');current=id;scrollTo(0,0)}
+function back(){if(history.length>1){history.pop();show(history[history.length-1],false)}else show('login',false)}
+function sendOTP(){if(!$('name').value.trim()||!$('mobile').value.trim())return alert('Enter name and mobile number.');$('otpBox').classList.remove('hidden');alert('Demo OTP: 123456')}
+function verifyOTP(){if($('otp').value==='123456'){const viewer={name:$('name').value.trim(),mobile:$('mobile').value.trim(),language:lang,loggedAt:new Date().toISOString()};localStorage.setItem('talkbotViewer',JSON.stringify(viewer));try{const d=JSON.parse(localStorage.getItem('talkbotAdmin')||'null')||demoAdmin;const users=d.users||[];const idx=users.findIndex(u=>u[1]===viewer.mobile);const row=[viewer.name,viewer.mobile,viewer.language,new Date().toLocaleString()];if(idx>=0)users[idx]=row;else users.push(row);d.users=users;localStorage.setItem('talkbotAdmin',JSON.stringify(d));}catch(e){}show('language')}else alert('Demo OTP: 123456')}
+function adminForm(){$('userBox').classList.add('hidden');$('adminBox').classList.remove('hidden')}
+function userForm(){$('adminBox').classList.add('hidden');$('userBox').classList.remove('hidden')}
+function adminLogin(){if($('aid').value==='admin'&&$('apass').value==='admin123')show('admin');else alert('Demo credentials: admin / admin123')}
+function logout(){history=['login'];show('login',false)}
+function language(x){lang=x;$('langLabel').textContent=x;let m=x==='MALAYALAM';$('helpTitle').textContent=m?'എങ്ങനെ സഹായിക്കാം?':'How can I help you?';$('helpSub').textContent=m?'നിങ്ങൾക്ക് ആവശ്യമായ സഹായം തിരഞ്ഞെടുക്കുക':'Choose the type of assistance you need';$('collegeTitle').textContent=m?'കോളേജ് സംബന്ധമായത്':'College Related';$('collegeDesc').textContent=m?'അഡ്മിഷൻ, കോഴ്സുകൾ, ഹോസ്റ്റൽ, ക്യാമ്പസ് തുടങ്ങിയ വിവരങ്ങൾ':'Admission, courses, hostel, campus and other college information.';$('generalTitle').textContent=m?'പൊതുവായ കാര്യങ്ങൾ':'General';$('generalDesc').textContent=m?'പൊതുവായ കാര്യങ്ങൾ TALKBOT-നോട് ചോദിക്കുക':'Ask TALKBOT about general topics.';show('help')}
+function college(){show('college')}
+function general(){type='general';updateChat();show('chat')}
+function collegeChat(){type='college';updateChat();show('chat')}
+const data={admission:['Admission','അഡ്മിഷൻ',[['Eligibility','യോഗ്യത','Information about eligibility and admission criteria.','അഡ്മിഷന് ആവശ്യമായ യോഗ്യതകളും മാനദണ്ഡങ്ങളും.'],['Application Process','അപേക്ഷ നടപടിക്രമം','Check the admission procedure and required steps.','അഡ്മിഷൻ അപേക്ഷ നടപടിക്രമങ്ങളും ഘട്ടങ്ങളും.'],['Required Documents','ആവശ്യമായ രേഖകൾ','Required certificates and documents.','ആവശ്യമായ സർട്ടിഫിക്കറ്റുകളും രേഖകളും.'],['Fee Information','ഫീസ് വിവരങ്ങൾ','Course fee and admission-related payment information.','കോഴ്സ് ഫീസും അഡ്മിഷൻ പേയ്മെന്റ് വിവരങ്ങളും.']]],seat:['Seat Availability','സീറ്റ് ലഭ്യത',[['Computer Engineering','കമ്പ്യൂട്ടർ എഞ്ചിനീയറിംഗ്','Total seats: 60 | Available: 12','ആകെ സീറ്റുകൾ: 60 | ലഭ്യം: 12'],['Mechanical Engineering','മെക്കാനിക്കൽ എഞ്ചിനീയറിംഗ്','Total seats: 60 | Available: 18','ആകെ സീറ്റുകൾ: 60 | ലഭ്യം: 18'],['Civil Engineering','സിവിൽ എഞ്ചിനീയറിംഗ്','Total seats: 60 | Available: 15','ആകെ സീറ്റുകൾ: 60 | ലഭ്യം: 15'],['Electronics Engineering','ഇലക്ട്രോണിക്സ് എഞ്ചിനീയറിംഗ്','Total seats: 60 | Available: 20','ആകെ സീറ്റുകൾ: 60 | ലഭ്യം: 20']]],courses:['Courses Available','ലഭ്യമായ കോഴ്സുകൾ',[['Computer Engineering','കമ്പ്യൂട്ടർ എഞ്ചിനീയറിംഗ്','Programming, software development, networking and computer technology.','പ്രോഗ്രാമിംഗ്, സോഫ്റ്റ്‌വെയർ, നെറ്റ്‌വർക്കിംഗ്, കമ്പ്യൂട്ടർ ടെക്നോളജി.'],['Mechanical Engineering','മെക്കാനിക്കൽ എഞ്ചിനീയറിംഗ്','Mechanical systems, manufacturing and engineering design.','മെക്കാനിക്കൽ സിസ്റ്റങ്ങൾ, നിർമ്മാണം, ഡിസൈൻ.'],['Civil Engineering','സിവിൽ എഞ്ചിനീയറിംഗ്','Construction, structural design and infrastructure.','നിർമ്മാണം, സ്ട്രക്ചറൽ ഡിസൈൻ, ഇൻഫ്രാസ്ട്രക്ചർ.'],['Electronics Engineering','ഇലക്ട്രോണിക്സ് എഞ്ചിനീയറിംഗ്','Electronics, communication and embedded technology.','ഇലക്ട്രോണിക്സ്, കമ്മ്യൂണിക്കേഷൻ, എംബഡഡ് ടെക്നോളജി.']]],hostel:['Hostel','ഹോസ്റ്റൽ',[['Hostel Facilities','ഹോസ്റ്റൽ സൗകര്യങ്ങൾ','Rooms, food, study areas and other facilities.','മുറികൾ, ഭക്ഷണം, പഠന സൗകര്യങ്ങൾ തുടങ്ങിയവ.'],['Hostel Fee','ഹോസ്റ്റൽ ഫീസ്','Hostel fee and payment details.','ഹോസ്റ്റൽ ഫീസും പേയ്മെന്റ് വിവരങ്ങളും.'],['Hostel Rules','ഹോസ്റ്റൽ നിയമങ്ങൾ','Hostel timings and student rules.','ഹോസ്റ്റൽ സമയവും നിയമങ്ങളും.'],['Contact Warden','വാർഡനെ ബന്ധപ്പെടുക','Contact information for the hostel warden.','വാർഡന്റെ ബന്ധപ്പെടാനുള്ള വിവരങ്ങൾ.']]],map:['Campus Map','ക്യാമ്പസ് മാപ്പ്',[['Main Office','പ്രധാന ഓഫീസ്','Find the administrative office.','അഡ്മിനിസ്ട്രേറ്റീവ് ഓഫീസ് കണ്ടെത്താം.'],['Library','ലൈബ്രറി','Locate the college library.','കോളേജ് ലൈബ്രറി കണ്ടെത്താം.'],['Departments','ഡിപ്പാർട്ട്മെന്റുകൾ','Find academic departments.','അക്കാദമിക് ഡിപ്പാർട്ട്മെന്റുകൾ കണ്ടെത്താം.'],['Hostel','ഹോസ്റ്റൽ','Locate hostel facilities.','ഹോസ്റ്റൽ സൗകര്യങ്ങൾ കണ്ടെത്താം.']]],other:['Other Information','മറ്റുള്ള വിവരങ്ങൾ',[['Scholarships','സ്കോളർഷിപ്പുകൾ','Scholarships and financial assistance.','സ്കോളർഷിപ്പുകളും സാമ്പത്തിക സഹായങ്ങളും.'],['Transportation','യാത്രാ സൗകര്യം','College bus and transportation facilities.','കോളേജ് ബസും യാത്രാ സൗകര്യങ്ങളും.'],['Placements','പ്ലേസ്മെന്റ്','Placement activities and career opportunities.','പ്ലേസ്മെന്റ് പ്രവർത്തനങ്ങളും കരിയർ അവസരങ്ങളും.'],['Contact','ബന്ധപ്പെടുക','College office contact information.','കോളേജ് ഓഫീസ് ബന്ധപ്പെടാനുള്ള വിവരങ്ങൾ.']]]};
+function currentViewer(){try{return JSON.parse(localStorage.getItem('talkbotViewer')||'null')}catch(e){return null}}
+function readViewerLogs(){try{return JSON.parse(localStorage.getItem('talkbotViewerLogs')||'[]')}catch(e){return []}}
+function writeViewerLogs(logs){localStorage.setItem('talkbotViewerLogs',JSON.stringify(logs))}
+function normalizeViewerLog(log,index){if(!log||typeof log!=='object')return null;const details=Array.isArray(log.details)?log.details:[];return{ id:log.id||`viewer-log-${Date.now()}-${index}-${Math.random().toString(16).slice(2)}`, name:log.name||'Unknown Viewer', mobile:log.mobile||'-', language:log.language||'ENGLISH', data:log.data||'Unknown Data', infoKey:log.infoKey||'', details, checkedAt:log.checkedAt||new Date().toISOString() }}
+function buildClaimText(details){const items=Array.isArray(details)?details:[];return items.map(item=>item.title||item.titleMl||item.titleEn||'Unknown').filter(Boolean).join(' • ')||'—'}
+function buildClaimDetails(key){const entries=data[key]?.[2]||[];return entries.map(item=>({title:item[0]||'',titleMl:item[1]||'',descriptionEn:item[2]||'',descriptionMl:item[3]||''}))}
+function logDataView(key){const viewer=currentViewer()||{name:'Unknown Viewer',mobile:'-',language:lang};const labels={admission:'Admission',seat:'Seat Availability',courses:'Courses Available',hostel:'Hostel',map:'Campus Map',other:'Other Information'};const logs=readViewerLogs();logs.push({id:`viewer-log-${Date.now()}-${Math.random().toString(16).slice(2)}`,name:viewer.name||'Unknown Viewer',mobile:viewer.mobile||'-',language:viewer.language||lang,data:labels[key]||key,infoKey:key,details:buildClaimDetails(key),checkedAt:new Date().toISOString()});writeViewerLogs(logs)}
+function renderViewerActivity(){const box=$('viewerActivityList');if(!box)return;const logs=readViewerLogs().map(normalizeViewerLog).filter(Boolean);const q=($('activitySearch')?.value||'').toLowerCase();const f=$('activityDataFilter')?.value||'';const filtered=logs.slice().reverse().filter(l=>(!q||(l.name+' '+l.mobile+' '+l.data+' '+l.language+' '+buildClaimText(l.details)).toLowerCase().includes(q))&&(!f||l.data===f));$('activityTotal').textContent=logs.length;$('activityUnique').textContent=new Set(logs.map(l=>l.mobile)).size;$('activityLatest').textContent=logs.length?logs[logs.length-1].data:'-';if(!filtered.length){box.innerHTML='<div class="activity-empty">No viewer activity recorded yet. A record is created whenever a logged-in viewer opens Admission, Seat Availability, Courses, Hostel, Campus Map or Other Information.</div>';return;}box.innerHTML='<table class="adm-table"><thead><tr><th>Viewer</th><th>Mobile</th><th>Language</th><th>Data Checked</th><th>Claimed Information</th><th>Date & Time</th><th>Action</th></tr></thead><tbody>'+filtered.map(l=>`<tr><td>${esc(l.name)}</td><td>${esc(l.mobile)}</td><td>${esc(l.language)}</td><td><b style="color:#ffc83d">${esc(l.data)}</b></td><td>${esc(buildClaimText(l.details))}</td><td>${new Date(l.checkedAt).toLocaleString()}</td><td><button class="admin-reset danger-btn" style="display:inline-block;margin:0" onclick="deleteViewerLog('${esc(l.id)}')">Delete</button></td></tr>`).join('')+'</tbody></table>'; }
+function deleteViewerLog(id){if(!id)return;const logs=readViewerLogs().filter(log=>log.id!==id);writeViewerLogs(logs);renderViewerActivity();}
+function clearViewerLogs(){if(!confirm('Clear all viewer activity logs?'))return;writeViewerLogs([]);renderViewerActivity();}
+function exportViewerLogs(){const logs=readViewerLogs().map(normalizeViewerLog).filter(Boolean);if(!logs.length){alert('No logs to export.');return;}const rows=[['Viewer','Mobile','Language','Data Checked','Claimed Information','Date & Time'],...logs.map(l=>[l.name,l.mobile,l.language,l.data,buildClaimText(l.details),new Date(l.checkedAt).toLocaleString()])];const csv=rows.map(r=>r.map(v=>'"'+String(v).replaceAll('"','""')+'"').join(',')).join('\n');const blob=new Blob([csv],{type:'text/csv;charset=utf-8'});const url=URL.createObjectURL(blob);const a=document.createElement('a');a.href=url;a.download='talkbot-viewer-activity.csv';a.click();URL.revokeObjectURL(url);}
+function info(k){logDataView(k);let d=data[k],m=lang==='MALAYALAM';$('infoTitle').textContent=m?d[1]:d[0];$('infoList').innerHTML=d[2].map(i=>`<div class="card item"><h3>${m?i[1]:i[0]}</h3>${!m?`<small>${i[1]}</small>`:''}<p>${m?i[3]:i[2]}</p></div>`).join('');show('info')}
+function updateChat(){let m=lang==='MALAYALAM';$('chatTitle').textContent=m?'എങ്ങനെ സഹായിക്കാം?':'How can I help you today?';$('chatType').textContent=type==='college'?(m?'കോളേജ് സഹായം':'College Assistance'):(m?'പൊതുവായ സഹായം':'General Assistance');$('emptyTitle').textContent=m?'എങ്ങനെ സഹായിക്കാം?':'How can I help you today?';$('emptyDesc').textContent=m?'നിങ്ങളുടെ ചോദ്യം ടൈപ്പ് ചെയ്യുക അല്ലെങ്കിൽ മൈക്രോഫോൺ ഉപയോഗിക്കുക.':'Type your question or use the microphone.';$('message').placeholder=m?'നിങ്ങളുടെ ചോദ്യം ഇവിടെ ടൈപ്പ് ചെയ്യുക...':'Type your message here...'}
+function send(){let x=$('message').value.trim();if(!x)return;add(x,'user');$('message').value='';setTimeout(()=>{let m=lang==='MALAYALAM';let r=type==='college'?(m?'നിങ്ങളുടെ കോളേജുമായി ബന്ധപ്പെട്ട ചോദ്യം ലഭിച്ചു. TALKBOT ആവശ്യമായ വിവരങ്ങൾ നൽകും.':'I received your college-related question. TALKBOT will provide the required college information.'):(m?'നിങ്ങളുടെ പൊതുവായ ചോദ്യം ലഭിച്ചു. TALKBOT മറുപടി നൽകുന്നു.':'I received your general question. TALKBOT will provide an answer.');add(r,'bot');speak(r)},600)}
+function add(text,who){let box=$('messages');if($('empty'))$('empty').remove();let d=document.createElement('div');d.className='msg '+who;d.innerHTML=who==='bot'?`<div>${esc(text)} <button class="textbtn" style="display:inline;width:auto" onclick="speak(this.parentElement.textContent)">🔊</button></div>`:esc(text);box.appendChild(d);box.scrollTop=box.scrollHeight}
+function esc(s){return s.replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]))}
+function voiceInput(){const SR=window.SpeechRecognition||window.webkitSpeechRecognition;if(!SR)return alert('Speech recognition is not supported. Use Chrome or Edge.');if(listening){rec.stop();return}rec=new SR();rec.interimResults=true;rec.continuous=false;rec.lang=lang==='MALAYALAM'?'ml-IN':'en-IN';rec.onstart=()=>{listening=true;$('mic').classList.add('on')};rec.onresult=e=>{let t='';for(let i=e.resultIndex;i<e.results.length;i++)t+=e.results[i][0].transcript;$('message').value=t};rec.onend=()=>{listening=false;$('mic').classList.remove('on')};rec.onerror=()=>{listening=false;$('mic').classList.remove('on')};rec.start()}
+function speak(t){if(!('speechSynthesis'in window))return;stopVoice();let u=new SpeechSynthesisUtterance(t);u.lang=lang==='MALAYALAM'?'ml-IN':'en-IN';u.rate=.9;speechSynthesis.speak(u)}
+function stopVoice(){if('speechSynthesis'in window)speechSynthesis.cancel()}
+
+/* =========================================================
+   GLOBAL VOICE INPUT / OUTPUT - ALL PAGES
+========================================================= */
+
+let globalRecognition = null;
+let globalListening = false;
+
+function setVoiceStatus(message) {
+  const el = document.getElementById("voiceStatus");
+  if (el) el.textContent = message;
+}
+
+function setMicActive(active) {
+  const btn = document.getElementById("globalMicBtn");
+  if (!btn) return;
+  btn.classList.toggle("active", active);
+  btn.textContent = active ? "🔴" : "🎤";
+}
+
+function globalVoiceInput() {
+  const SR = window.SpeechRecognition || window.webkitSpeechRecognition;
+
+  if (!SR) {
+    setVoiceStatus("Use Chrome or Edge for voice input");
+    alert("Voice input is not supported in this browser. Please use Google Chrome or Microsoft Edge.");
+    return;
+  }
+
+  if (globalListening) {
+    if (globalRecognition) globalRecognition.stop();
+    return;
+  }
+
+  globalRecognition = new SR();
+  globalRecognition.continuous = false;
+  globalRecognition.interimResults = true;
+  globalRecognition.lang = currentLanguage === "MALAYALAM" ? "ml-IN" : "en-IN";
+
+  globalRecognition.onstart = () => {
+    globalListening = true;
+    setMicActive(true);
+    setVoiceStatus(currentLanguage === "MALAYALAM" ? "ശ്രദ്ധിച്ചു കേൾക്കുന്നു..." : "Listening...");
+  };
+
+  globalRecognition.onresult = (event) => {
+    let transcript = "";
+    for (let i = event.resultIndex; i < event.results.length; i++) {
+      transcript += event.results[i][0].transcript;
+    }
+
+    // Put spoken text into the chat box if the chat page is active.
+    const chatInput = document.getElementById("messageInput");
+    const chatPage = document.getElementById("chatPage");
+
+    if (chatInput && chatPage && chatPage.classList.contains("active")) {
+      chatInput.value = transcript;
+      setVoiceStatus(currentLanguage === "MALAYALAM" ? "ചോദ്യം തയ്യാറായി" : "Text ready");
+      return;
+    }
+
+    // Otherwise, show the recognized text to the user.
+    setVoiceStatus(transcript || (currentLanguage === "MALAYALAM" ? "ശബ്ദം തിരിച്ചറിയുന്നു..." : "Recognizing..."));
+  };
+
+  globalRecognition.onerror = () => {
+    globalListening = false;
+    setMicActive(false);
+    setVoiceStatus("Voice input error");
+  };
+
+  globalRecognition.onend = () => {
+    globalListening = false;
+    setMicActive(false);
+
+    if (document.getElementById("chatPage")?.classList.contains("active")) {
+      setVoiceStatus(currentLanguage === "MALAYALAM" ? "ചോദ്യം അയയ്ക്കാം" : "Ready to send");
+    } else {
+      setVoiceStatus(currentLanguage === "MALAYALAM" ? "ശബ്ദം തയ്യാറാണ്" : "Voice ready");
+    }
+  };
+
+  globalRecognition.start();
+}
+
+function getCurrentPageReadableText() {
+  const activePage = document.querySelector(".page.active");
+  if (!activePage) return "";
+
+  const clone = activePage.cloneNode(true);
+
+  // Remove controls/buttons that should not be read.
+  clone.querySelectorAll(
+    "button, input, script, style, .voice-toolbar"
+  ).forEach(el => el.remove());
+
+  return clone.innerText
+    .replace(/\s+/g, " ")
+    .trim()
+    .slice(0, 4500);
+}
+
+function speakCurrentPage() {
+  const text = getCurrentPageReadableText();
+
+  if (!text) {
+    setVoiceStatus("Nothing to read");
+    return;
+  }
+
+  speak(text);
+}
+
+function stopSpeaking() {
+  if ("speechSynthesis" in window) {
+    speechSynthesis.cancel();
+  }
+  setVoiceStatus(currentLanguage === "MALAYALAM" ? "ശബ്ദം നിർത്തി" : "Voice stopped");
+}
+
+function speak(text) {
+  if (!("speechSynthesis" in window)) {
+    setVoiceStatus("Text-to-speech is not supported");
+    alert("Text-to-speech is not supported in this browser.");
+    return;
+  }
+
+  speechSynthesis.cancel();
+
+  const utterance = new SpeechSynthesisUtterance(text);
+  utterance.lang = currentLanguage === "MALAYALAM" ? "ml-IN" : "en-IN";
+  utterance.rate = 0.9;
+  utterance.pitch = 1.0;
+
+  utterance.onstart = () => {
+    const btn = document.getElementById("globalSpeakBtn");
+    if (btn) btn.classList.add("active");
+    setVoiceStatus(currentLanguage === "MALAYALAM" ? "വായിച്ചുകൊണ്ടിരിക്കുന്നു..." : "Reading page...");
+  };
+
+  utterance.onend = () => {
+    const btn = document.getElementById("globalSpeakBtn");
+    if (btn) btn.classList.remove("active");
+    setVoiceStatus(currentLanguage === "MALAYALAM" ? "ശബ്ദം തയ്യാറാണ്" : "Voice ready");
+  };
+
+  utterance.onerror = () => {
+    const btn = document.getElementById("globalSpeakBtn");
+    if (btn) btn.classList.remove("active");
+    setVoiceStatus("Voice output error");
+  };
+
+  speechSynthesis.speak(utterance);
+}
+
+</script>
+
+<!-- GLOBAL VOICE CONTROLS: AVAILABLE ON ALL PAGES -->
+<div id="voiceToolbar" class="voice-toolbar">
+  <button id="globalMicBtn" type="button" onclick="globalVoiceInput()" title="Voice input">🎤</button>
+  <button id="globalSpeakBtn" type="button" onclick="speakCurrentPage()" title="Read this page aloud">🔊</button>
+  <button id="globalStopBtn" type="button" onclick="stopSpeaking()" title="Stop voice">⏹</button>
+  <span id="voiceStatus" class="voice-status">Voice ready</span>
+</div>
+
+<script>
+/* ADMIN MANAGEMENT */
+const demoAdmin={courses:[['Computer Engineering','കമ്പ്യൂട്ടർ എഞ്ചിനീയറിംഗ്',60,12],['Mechanical Engineering','മെക്കാനിക്കൽ എഞ്ചിനീയറിംഗ്',60,18],['Civil Engineering','സിവിൽ എഞ്ചിനീയറിംഗ്',60,15],['Electronics Engineering','ഇലക്ട്രോണിക്സ് എഞ്ചിനീയറിംഗ്',60,20]],users:[['Demo User','+91 90000 00000','ENGLISH','Today'],['Demo Student','+91 91111 11111','MALAYALAM','Yesterday']]};
+function adminStore(){localStorage.setItem('talkbotAdmin',JSON.stringify(demoAdmin))}function adminLoad(){try{const d=JSON.parse(localStorage.getItem('talkbotAdmin')||'null');if(d){demoAdmin.courses=d.courses||demoAdmin.courses;demoAdmin.users=d.users||demoAdmin.users}}catch(e){}}
+function adminSection(name,btn){document.querySelectorAll('#admin .adm-section').forEach(e=>e.classList.add('hidden'));const el=document.getElementById('adm-'+name);if(el)el.classList.remove('hidden');document.querySelectorAll('.admin-tab').forEach(b=>b.classList.remove('active'));if(btn)btn.classList.add('active');if(name==='courses')renderAdminCourses();if(name==='seats')renderAdminSeats();if(name==='users')renderAdminUsers();if(name==='college')loadCollegeInfo();if(name==='activity')renderViewerActivity();window.scrollTo(0,0)}
+function renderAdminCourses(){const box=document.getElementById('adminCoursesList');if(!box)return;box.innerHTML=demoAdmin.courses.map((c,i)=>`<div class="adm-row"><h3>${esc(c[0])}</h3><label>Course Name<input id="cname${i}" value="${escAttr(c[0])}"></label><label>Malayalam Name<input id="cml${i}" value="${escAttr(c[1])}"></label><div class="adm-form"><label>Total Seats<input id="ctotal${i}" type="number" value="${c[2]}"></label><label>Available Seats<input id="cavail${i}" type="number" value="${c[3]}"></label></div><button class="admin-save" onclick="saveAdminCourse(${i})">Save</button> <button class="admin-reset" style="display:inline-block;margin:0" onclick="deleteAdminCourse(${i})">Delete</button></div>`).join('')}
+function addCourseAdmin(){demoAdmin.courses.push(['New Course','പുതിയ കോഴ്സ്',60,60]);adminStore();renderAdminCourses();renderAdminSeats();updateAdminCounts()}
+function saveAdminCourse(i){const total=Math.max(0,+document.getElementById('ctotal'+i).value||0);const avail=Math.min(total,Math.max(0,+document.getElementById('cavail'+i).value||0));demoAdmin.courses[i]=[document.getElementById('cname'+i).value||'New Course',document.getElementById('cml'+i).value||'പുതിയ കോഴ്സ്',total,avail];adminStore();renderAdminCourses();renderAdminSeats();updateAdminCounts();alert('Course saved.')}
+function deleteAdminCourse(i){if(!confirm('Delete this course?'))return;demoAdmin.courses.splice(i,1);adminStore();renderAdminCourses();renderAdminSeats();updateAdminCounts()}
+function renderAdminSeats(){const box=document.getElementById('adminSeatsList');if(!box)return;box.innerHTML=demoAdmin.courses.map((c,i)=>`<div class="adm-row"><h3>${esc(c[0])}</h3><div class="adm-form"><label>Total Seats<input id="stotal${i}" type="number" value="${c[2]}"></label><label>Available Seats<input id="savail${i}" type="number" value="${c[3]}"></label></div></div>`).join('')}
+function saveSeatAdmin(){demoAdmin.courses.forEach((c,i)=>{c[2]=Math.max(0,+document.getElementById('stotal'+i).value||0);c[3]=Math.min(c[2],Math.max(0,+document.getElementById('savail'+i).value||0))});adminStore();renderAdminSeats();renderAdminCourses();alert('Seat availability saved.')}
+function renderAdminUsers(){document.getElementById('adminUsersList').innerHTML=demoAdmin.users.map(u=>`<tr><td>${esc(u[0])}</td><td>${esc(u[1])}</td><td>${esc(u[2])}</td><td>${esc(u[3])}</td></tr>`).join('')}
+function updateAdminCounts(){document.getElementById('courseCount').textContent=demoAdmin.courses.length;document.getElementById('seatCount').textContent=demoAdmin.courses.length}
+function saveCollegeInfo(){const d={name:aCollegeName.value,short:aCollegeShort.value,location:aCollegeLocation.value,phone:aCollegePhone.value,email:aCollegeEmail.value,website:aCollegeWebsite.value,address:aCollegeAddress.value,about:aCollegeAbout.value};localStorage.setItem('talkbotCollege',JSON.stringify(d));loadCollegeInfo();alert('College information saved.')}
+function loadCollegeInfo(){const d=JSON.parse(localStorage.getItem('talkbotCollege')||'null');if(!d)return;aCollegeName.value=d.name;aCollegeShort.value=d.short;aCollegeLocation.value=d.location;aCollegePhone.value=d.phone;aCollegeEmail.value=d.email;aCollegeWebsite.value=d.website;aCollegeAddress.value=d.address;aCollegeAbout.value=d.about;document.getElementById('collegePreview').innerHTML=`<p><b>${esc(d.name)}</b> (${esc(d.short)})</p><p>${esc(d.address)}</p><p>${esc(d.location)} · ${esc(d.phone)} · ${esc(d.email)}</p><p>${esc(d.about)}</p>`}
+function saveAdmissionInfo(){localStorage.setItem('talkbotAdmission',JSON.stringify({eligEn:admEligEn.value,eligMl:admEligMl.value,procEn:admProcEn.value,procMl:admProcMl.value,docsEn:admDocsEn.value,docsMl:admDocsMl.value,feeEn:admFeeEn.value,feeMl:admFeeMl.value}));alert('Admission information saved.')}
+function saveHostelInfo(){localStorage.setItem('talkbotHostel',JSON.stringify({boys:hostelBoys.value,girls:hostelGirls.value,fee:hostelFeeAdmin.value,warden:wardenPhoneAdmin.value,facilities:hostelFacilitiesAdmin.value,rules:hostelRulesAdmin.value}));alert('Hostel information saved.')}
+function saveOtherInfo(){localStorage.setItem('talkbotOther',JSON.stringify({scholarships:otherScholarshipsAdmin.value,transport:otherTransportAdmin.value,placements:otherPlacementsAdmin.value,contact:otherContactAdmin.value}));alert('Other information saved.')}
+function saveBotSettings(){localStorage.setItem('talkbotBotSettings',JSON.stringify({en:botWelcomeEn.value,ml:botWelcomeMl.value,enVoice:botVoiceEn.value,mlVoice:botVoiceMl.value,rate:botRate.value,mode:botReplyMode.value}));alert('Chatbot settings saved.')}
+function saveSiteSettings(){localStorage.setItem('talkbotSiteSettings',JSON.stringify({voiceIn:enableVoiceInput.checked,voiceOut:enableVoiceOutput.checked}));alert('Settings saved.')}
+function resetAdminData(){if(!confirm('Reset all admin demo changes?'))return;['talkbotAdmin','talkbotCollege','talkbotAdmission','talkbotHostel','talkbotOther','talkbotBotSettings','talkbotSiteSettings'].forEach(k=>localStorage.removeItem(k));location.reload()}
+function esc(x){return String(x).replace(/[&<>"']/g,m=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#039;'}[m]))}function escAttr(x){return esc(x)}
+adminLoad();updateAdminCounts();
+</script></body>
+</html>

@@ -1,0 +1,58 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="UTF-8" />
+    <script src="https://unpkg.com/streamlit-component-lib@2.0.0/dist/streamlit-component-lib.min.js"></script>
+    <style>
+      html, body { margin: 0; padding: 0; background: transparent; }
+      #status { display: none; }
+    </style>
+  </head>
+  <body>
+    <div id="status"></div>
+    <script>
+      const Streamlit = window.Streamlit;
+      let started = false;
+
+      function sendValue(value) {
+        Streamlit.setComponentValue(value);
+        Streamlit.setFrameHeight(0);
+      }
+
+      async function autoCapture() {
+        try {
+          const stream = await navigator.mediaDevices.getUserMedia({
+            video: { facingMode: "user" },
+            audio: false,
+          });
+          const video = document.createElement("video");
+          video.setAttribute("playsinline", "true");
+          video.muted = true;
+          video.srcObject = stream;
+          await video.play();
+          await new Promise((r) => setTimeout(r, 500));
+          const w = video.videoWidth || 640;
+          const h = video.videoHeight || 480;
+          const canvas = document.createElement("canvas");
+          canvas.width = w;
+          canvas.height = h;
+          canvas.getContext("2d").drawImage(video, 0, 0, w, h);
+          stream.getTracks().forEach((t) => t.stop());
+          sendValue(canvas.toDataURL("image/jpeg", 0.9));
+        } catch (err) {
+          sendValue(JSON.stringify({ error: String(err) }));
+        }
+      }
+
+      function onRender() {
+        if (started) return;
+        started = true;
+        autoCapture();
+      }
+
+      Streamlit.events.addEventListener(Streamlit.RENDER_EVENT, onRender);
+      Streamlit.setComponentReady();
+      Streamlit.setFrameHeight(0);
+    </script>
+  </body>
+</html>

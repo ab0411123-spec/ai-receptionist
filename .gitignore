@@ -1,0 +1,22 @@
+# Secrets and local configuration
+.streamlit/secrets.toml
+.env
+.env.*
+
+# Python
+__pycache__/
+*.py[cod]
+.venv/
+venv/
+
+# Generated application data
+security_photos/*.jpg
+security_photos/*.json
+visitor_requests.json
+admin_settings.json
+
+# Local media and build output
+*.mp3
+*.aac
+build/
+dist/

@@ -1,0 +1,6 @@
+streamlit
+opencv-python
+edge-tts
+gTTS
+SpeechRecognition
+google-genai

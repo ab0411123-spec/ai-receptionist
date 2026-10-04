@@ -1,0 +1,3 @@
+# Login security photos (admin-only). Do not commit visitor images.
+*
+!.gitignore
