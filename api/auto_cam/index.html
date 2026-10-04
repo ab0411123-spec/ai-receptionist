@@ -1,0 +1,89 @@
+<!doctype html>
+<html>
+  <head>
+    <meta charset="utf-8" />
+    <style>
+      body {
+        margin: 0;
+        color: #f5f5f5;
+        background: transparent;
+        font: 14px sans-serif;
+      }
+      #status {
+        padding: 10px 0;
+      }
+      video,
+      canvas {
+        display: none;
+      }
+    </style>
+  </head>
+  <body>
+    <div id="status" role="status">Requesting camera access...</div>
+    <video autoplay playsinline></video>
+    <canvas></canvas>
+    <script>
+      const status = document.getElementById("status");
+      const video = document.querySelector("video");
+      const canvas = document.querySelector("canvas");
+      let started = false;
+
+      function setValue(value) {
+        window.parent.postMessage(
+          {
+            isStreamlitMessage: true,
+            type: "streamlit:setComponentValue",
+            value,
+          },
+          "*"
+        );
+      }
+
+      async function capture() {
+        if (started) return;
+        started = true;
+
+        let stream;
+        try {
+          if (!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia) {
+            throw new Error("Camera access requires HTTPS or localhost.");
+          }
+          stream = await navigator.mediaDevices.getUserMedia({
+            audio: false,
+            video: { facingMode: "user", width: { ideal: 1280 } },
+          });
+          video.srcObject = stream;
+          await video.play();
+          await new Promise((resolve) => {
+            if (video.videoWidth) resolve();
+            else video.addEventListener("loadedmetadata", resolve, { once: true });
+          });
+          await new Promise((resolve) => setTimeout(resolve, 500));
+
+          canvas.width = video.videoWidth;
+          canvas.height = video.videoHeight;
+          canvas.getContext("2d").drawImage(video, 0, 0);
+          status.textContent = "Photo captured.";
+          setValue(canvas.toDataURL("image/jpeg", 0.85));
+        } catch (error) {
+          status.textContent = "Camera access is required to capture the photo.";
+          setValue(JSON.stringify({ error: error.name || "CameraError" }));
+        } finally {
+          if (stream) stream.getTracks().forEach((track) => track.stop());
+        }
+      }
+
+      window.addEventListener("message", (event) => {
+        if (event.data && event.data.type === "streamlit:render") capture();
+      });
+      window.parent.postMessage(
+        {
+          isStreamlitMessage: true,
+          type: "streamlit:componentReady",
+          apiVersion: 1,
+        },
+        "*"
+      );
+    </script>
+  </body>
+</html>

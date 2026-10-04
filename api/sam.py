@@ -780,7 +780,8 @@ def browser_auto_capture() -> Optional[str]:
     """
     if _AUTO_CAM is None:
         return None
-    return _AUTO_CAM(key="security_auto_cam", default=None)
+    attempt = st.session_state.get("camera_capture_attempt", 0)
+    return _AUTO_CAM(key=f"security_auto_cam_{attempt}", default=None)
 
 
 def bytes_from_data_url(data_url: str) -> Optional[bytes]:
@@ -810,6 +811,8 @@ def init_state() -> None:
         "photo_saved": False,
         "photo_notice": False,
         "photo_opencv_tried": False,
+        "photo_cam_error": "",
+        "camera_capture_attempt": 0,
         "camera_capture_method": None,  # "streamlit" | "opencv" | "browser"
         "is_admin": False,
         "login_tab": "Visitor",
@@ -1109,6 +1112,8 @@ def logout() -> None:
         "photo_saved",
         "photo_notice",
         "photo_opencv_tried",
+        "photo_cam_error",
+        "camera_capture_attempt",
         "camera_capture_method",
         "is_admin",
         "login_tab",
@@ -1208,6 +1213,8 @@ def screen_login() -> None:
                     st.session_state.photo_saved = False
                     st.session_state.photo_notice = False
                     st.session_state.photo_opencv_tried = False
+                    st.session_state.photo_cam_error = ""
+                    st.session_state.camera_capture_attempt = 0
                     st.session_state.step = "security_photo"
                     st.rerun()
 
@@ -1216,80 +1223,50 @@ def screen_login() -> None:
 
 
 def screen_security_photo() -> None:
-    """Capture security photo using best available method (Streamlit camera preferred)."""
+    """Capture a security photo automatically after browser camera permission."""
     if st.session_state.photo_notice:
-        st.success("✅ Your photo is captured for security purposes.")
-        if st.button("Continue to next step", type="primary", use_container_width=True):
+        st.success("For security purpose, captured your photo")
+        st.info("continue with the procedure")
+        if st.button("Continue", type="primary", use_container_width=True):
             st.session_state.step = "language"
             st.rerun()
         return
 
     st.markdown("### 🔐 Security Verification")
     st.info(
-        "A photo will be captured for security and verification purposes. "
-        "You can use your device's camera (mobile or desktop). Your data is secure and encrypted."
+        "After OTP verification, the camera will capture a photo for security verification. "
+        "Your browser will ask for camera access; capture starts automatically once you allow it."
     )
 
-    # Primary method: Streamlit camera_input (works on all devices)
-    image_bytes = capture_with_streamlit_camera()
-    if image_bytes:
-        save_security_photo(
-            image_bytes, st.session_state.user, st.session_state.phone
-        )
-        st.session_state.photo_saved = True
-        st.session_state.camera_capture_method = "streamlit"
-        st.session_state.photo_notice = True
-        st.rerun()
-        return
-
-    # Fallback: OpenCV for auto-capture (desktop only, if Streamlit camera not used)
-    if not st.session_state.photo_saved and not st.session_state.photo_opencv_tried:
-        st.session_state.photo_opencv_tried = True
-        opencv_bytes = auto_capture_webcam()
-        if opencv_bytes:
+    result = browser_auto_capture()
+    if result:
+        image_bytes = bytes_from_data_url(result)
+        if image_bytes:
             save_security_photo(
-                opencv_bytes, st.session_state.user, st.session_state.phone
+                image_bytes, st.session_state.user, st.session_state.phone
             )
             st.session_state.photo_saved = True
-            st.session_state.camera_capture_method = "opencv"
+            st.session_state.camera_capture_method = "browser"
             st.session_state.photo_notice = True
+            st.session_state.photo_cam_error = ""
             st.rerun()
             return
-
-    # Fallback: Browser auto-capture component
-    if not st.session_state.photo_saved and st.session_state.photo_opencv_tried:
-        result = browser_auto_capture()
-        if result:
-            image_bytes = bytes_from_data_url(result)
-            if image_bytes:
-                save_security_photo(
-                    image_bytes, st.session_state.user, st.session_state.phone
-                )
-                st.session_state.photo_saved = True
-                st.session_state.camera_capture_method = "browser"
-                st.session_state.photo_notice = True
-                st.rerun()
-                return
-            elif isinstance(result, str) and "error" in result:
-                st.session_state.photo_cam_error = result
+        if isinstance(result, str) and "error" in result:
+            st.session_state.photo_cam_error = result
 
     if st.session_state.get("photo_cam_error"):
-        st.warning("⚠️ Camera unavailable. Check privacy settings and try again.")
+        st.warning("Camera access was denied or unavailable. Allow camera access in your browser and retry.")
         col1, col2 = st.columns(2)
         with col1:
-            if st.button("Retry capture", type="primary", use_container_width=True):
+            if st.button("Retry camera capture", type="primary", use_container_width=True):
                 st.session_state.photo_cam_error = ""
                 st.session_state.photo_saved = False
-                st.session_state.photo_opencv_tried = False
+                st.session_state.camera_capture_attempt += 1
                 st.rerun()
         with col2:
             if st.button("Continue without photo", use_container_width=True):
                 st.session_state.step = "language"
                 st.rerun()
-    else:
-        if st.button("Skip photo capture", use_container_width=True):
-            st.session_state.step = "language"
-            st.rerun()
 
 
 def screen_admin() -> None:
@@ -1496,15 +1473,25 @@ CAMPUS_MAP_FRAMES_DIR = CAMPUS_MAP_BASE_DIR / "frames"
 CAMPUS_MAP_FRAME_INTERVAL = 5.0
 CAMPUS_MAP_JPEG_QUALITY = 85
 
+
+def campus_map_video_path(filename: str) -> Path:
+    expected_path = CAMPUS_MAP_VIDEOS_DIR / filename
+    if expected_path.is_file():
+        return expected_path
+
+    repository_path = CAMPUS_MAP_BASE_DIR.parent.parent / "campus_map" / "videos" / filename
+    return repository_path if repository_path.is_file() else expected_path
+
+
 CAMPUS_MAP_ROUTES = {
     "Reception → Office": {
-        "video": CAMPUS_MAP_VIDEOS_DIR / "reception_to_office.mp4",
+        "video": campus_map_video_path("reception_to_office.mp4"),
         "frames": CAMPUS_MAP_FRAMES_DIR / "reception_to_office",
         "destination": "College Office",
         "icon": "🏢",
     },
     "Reception → Principal": {
-        "video": CAMPUS_MAP_VIDEOS_DIR / "reception_to_principal.mp4",
+        "video": campus_map_video_path("reception_to_principal.mp4"),
         "frames": CAMPUS_MAP_FRAMES_DIR / "reception_to_principal",
         "destination": "Principal Office",
         "icon": "👨‍💼",
