@@ -2,6 +2,7 @@
 .streamlit/secrets.toml
 .env
 .env.*
+node_modules/
 
 # Python
 __pycache__/
@@ -14,6 +15,8 @@ security_photos/*.jpg
 security_photos/*.json
 visitor_requests.json
 admin_settings.json
+attendance.csv
+session.json
 
 # Local media and build output
 *.mp3

@@ -5,6 +5,7 @@ import json
 import os
 import re
 import smtplib
+import socket
 import tempfile
 import random
 import threading
@@ -129,9 +130,11 @@ class OtpSession:
 ADMIN_USER = os.environ.get("AI_ADMIN_USER", "jinto")
 ADMIN_PASS = os.environ.get("AI_ADMIN_PASS", "jinto123")
 PHOTO_DIR = Path(__file__).resolve().parent / "security_photos"
-_AUTO_CAM = components.declare_component(
-    "auto_cam",
-    path=str(Path(__file__).resolve().parent / "auto_cam"),
+_AUTO_CAM_DIR = Path(__file__).resolve().parent / "auto_cam"
+_AUTO_CAM = (
+    components.declare_component("auto_cam", path=str(_AUTO_CAM_DIR))
+    if _AUTO_CAM_DIR.exists()
+    else None
 )
 
 # ---------------------------------------------------------------------------
@@ -155,7 +158,7 @@ COLLEGE = {
         "Electrical & Electronics Engineering (EEE)",
         "Mechanical Engineering (ME)",
         "Civil Engineering (CE)",
-        "Fire and Safety Engineering (FS)",
+        "fire and safety engineering(FS)",
     ],
     "departments_ml": [
         "കമ്പ്യൂട്ടർ എഞ്ചിനീയറിംഗ് (CT)",
@@ -163,7 +166,6 @@ COLLEGE = {
         "ഇലക്ട്രിക്കൽ & ഇലക്ട്രോണിക്സ് എഞ്ചിനീയറിംഗ് (EEE)",
         "മെക്കാനിക്കൽ എഞ്ചിനീയറിംഗ് (ME)",
         "സിവിൽ എഞ്ചിനീയറിംഗ് (CE)",
-        "ഫയർ ആൻഡ് സേഫ്റ്റി എഞ്ചിനീയറിംഗ് (FS)",
     ],
     "admission_note": "Admissions are open. Forms are available at the reception desk.",
     "admission_note_ml": "പ്രവേശനം തുറന്നിരിക്കുന്നു, ലാറ്ററൽ എൻട്രിയും ലഭ്യമാണ്.",
@@ -225,20 +227,10 @@ EMAIL_CONTACTS = {
     "Management": os.environ.get("VISITOR_MANAGEMENT_EMAIL", "ab0411123@gmail.com").strip(),
 }
 
-# Demo HOD emails per department (override with VISITOR_HOD_*_EMAIL env vars)
-_HOD_EMAIL_DEFAULTS = {
-    "Computer Engineering (CT)": "ct.hod.demo@stmaryspoly.edu.in",
-    "Automobile Engineering (AU)": "au.hod.demo@stmaryspoly.edu.in",
-    "Electrical & Electronics Engineering (EEE)": "eee.hod.demo@stmaryspoly.edu.in",
-    "Mechanical Engineering (ME)": "me.hod.demo@stmaryspoly.edu.in",
-    "Civil Engineering (CE)": "ce.hod.demo@stmaryspoly.edu.in",
-    "Fire and Safety Engineering (FS)": "fs.hod.demo@stmaryspoly.edu.in",
-}
-
 HOD_EMAIL_CONTACTS = {
     department: os.environ.get(
         f"VISITOR_HOD_{re.sub(r'[^A-Z0-9]+', '_', department.upper()).strip('_')}_EMAIL",
-        _HOD_EMAIL_DEFAULTS.get(department, ""),
+        "",
     ).strip()
     for department in COLLEGE["departments"]
 }
@@ -672,6 +664,13 @@ def send_visit_request_email(request: dict, body: str) -> tuple[bool, str]:
             if SMTP_USER and SMTP_PASSWORD:
                 server.login(SMTP_USER, SMTP_PASSWORD)
             server.send_message(message)
+    except socket.gaierror as error:
+        return (
+            False,
+            f"Email notification failed: could not resolve SMTP host '{SMTP_HOST}'. "
+            "Check VISITOR_SMTP_HOST and DNS/network access. "
+            f"Details: {error}",
+        )
     except (OSError, smtplib.SMTPException) as error:
         return False, f"Email notification failed: {error}"
     return True, f"Email notification sent to {len(recipients)} recipients."
@@ -775,10 +774,12 @@ def auto_capture_webcam() -> Optional[bytes]:
 
 def browser_auto_capture() -> Optional[str]:
     """
-    Browser webcam auto-capture via custom component.
+    Browser webcam auto-capture via custom component when available.
     Returns a data-URL string, an error JSON string, or None while waiting.
     OS/browser may still show a one-time camera permission dialog (cannot be skipped).
     """
+    if _AUTO_CAM is None:
+        return None
     return _AUTO_CAM(key="security_auto_cam", default=None)
 
 

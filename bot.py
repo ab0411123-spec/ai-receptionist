@@ -6,10 +6,7 @@ from google import genai
 
 from speech import is_malayalam, resolve_lang
 
-API_KEY = os.environ.get(
-    "GEMINI_API_KEY",
-    "AQ.Ab8RN6IUGhMgX6moVecBt7QBlRfhyVTUi_mrUNnWYwLODQBUGg",
-)
+API_KEY = os.environ.get("GEMINI_API_KEY", "").strip()
 
 _client = None
 
@@ -97,6 +94,8 @@ REPLIES = {
 def _get_client():
     global _client
     if _client is None:
+        if not API_KEY:
+            raise RuntimeError("GEMINI_API_KEY is not configured.")
         _client = genai.Client(api_key=API_KEY)
     return _client
 
